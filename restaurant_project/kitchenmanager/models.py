@@ -12,9 +12,9 @@ class MenuItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     description = models.TextField(blank=True)
 
-class RecipeRequirements(models.Model):
+class RecipeRequirement(models.Model):
     recipe = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
-    ingredients = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     quantity_needed = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
 class Purchase(models.Model):
