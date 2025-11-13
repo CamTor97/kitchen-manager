@@ -6,16 +6,16 @@ from django.db.models import Sum, F
 # Create your views here.
 # Dashboard view
 class DashboardView(TemplateView):
-    template_name = ""
+    template_name = "kitchenmanager/dashboard.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Calculating Total Revenue
-        total_revenue = Purchase.objects.aaggregate(
+        total_revenue = Purchase.objects.aggregate(
             total=Sum("menu_item__price")
         )["total"] or 0
         # Calculating Total Costs
-        total_cost = Purchase.objects.aaggregate(
+        total_cost = Purchase.objects.aggregate(
             total=Sum(
                 F("menu_item__reciperequirement__quantity_needed") *
                 F("menu_item__reciperequirement__ingredient__unit_price")
@@ -57,7 +57,7 @@ class IngredientDeleteView(DeleteView):
 #MenuItem model views
 class MenuItemListView(ListView):
     model = MenuItem
-    template_name = ""
+    template_name = "kitchenmanager/menu.html"
     context_object_name = "menu_item"
 
 class MenuItemCreationView(CreateView):

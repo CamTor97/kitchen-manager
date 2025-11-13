@@ -1,0 +1,13 @@
+.navbar{
+    width: 25% ;
+    border-right-width: 3px;
+    border-right-color: rgb(230, 234, 236);
+    border-right-style: solid;
+}
+
+.nav-item:hover{
+    background-color: rgb(211, 215, 218);
+    width: 90%;
+    padding: 20px;
+    border-radius: 5%;
+}
