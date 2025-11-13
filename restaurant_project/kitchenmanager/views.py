@@ -2,39 +2,17 @@ from django.shortcuts import render
 from django.views.generic import (ListView, DeleteView, DetailView, CreateView, UpdateView, TemplateView)
 from django.urls import reverse_lazy
 from .models import Ingredient, MenuItem, RecipeRequirement, Purchase
-from django.db.models import Sum, F
+from .mixins import CalculatedVariablesMixin
 # Create your views here.
 # Dashboard view
-class DashboardView(TemplateView):
+class DashboardView(CalculatedVariablesMixin, TemplateView):
     template_name = "kitchenmanager/dashboard.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Calculating Total Revenue
-        total_revenue = Purchase.objects.aggregate(
-            total=Sum("menu_item__price")
-        )["total"] or 0
-        # Calculating Total Costs
-        total_cost = Purchase.objects.aggregate(
-            total=Sum(
-                F("menu_item__reciperequirement__quantity_needed") *
-                F("menu_item__reciperequirement__ingredient__unit_price")
-            )
-        )["total"] or 0
-        # Calculating Total Profit
-        total_profit = total_revenue - total_cost
-        # Updating context
-        context.update({
-            "total_revenue": total_revenue,
-            "total_cost": total_cost,
-            "total_profit": total_profit,
-        })
-        return context
     
 # Ingredient model views
 class IngredientListView(ListView):
     model = Ingredient
-    template_name = ""
+    template_name = "kitchenmanager/ingredients.html"
     context_object_name = "ingredient" 
 
 class IngredientCreationView(CreateView):
@@ -79,7 +57,7 @@ class MenuItemDeleteView(DeleteView):
 
 class MenuItemDetailView(DetailView):
     model = MenuItem
-    template_name = ""
+    template_name = "kitchenmanager/menu-details.html"
     context_object_name = "menu_item"
 
     def get_context_data(self, **kwargs):
@@ -112,9 +90,9 @@ class RecipeRequirementDeleteView(DeleteView):
     success_url = reverse_lazy("recipe_requirements")
 
 # Purchase model views
-class PurchaseListView(ListView):
+class PurchaseListView(CalculatedVariablesMixin, ListView):
     model = Purchase
-    template_name = ""
+    template_name = "kitchenmanager/purchases.html"
     context_object_name = "purchase"
 
 class PurchaseCreationView(CreateView):

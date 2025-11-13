@@ -1,26 +1,26 @@
 {% extends "../base.html" %}
-{% block title %}KitchenManager - Menu{% endblock %}
+{% block title %}KitchenManager - Purchases{% endblock %}
 
 {% block content %}
 <div>
-    <h1>Menu Items</h1>
+    <h1>Purchases</h1>
     <!--Bringing the generic ListView for the ModelItem model-->
 
     
     <table class="table table-striped table-hover">
         <thead>
             <tr>
-                <th>Name</th>
+                <th>Time</th>
+                <th>Menu Item</th>
                 <th>Price</th>
-                <th>Description</th>
             </tr>
         </thead>
         <tbody>
-            {% for item in menu_item %}
+            {% for item in purchase %}
             <tr>
-                <td>{{item.name}}</td>
-                <td>{{item.price}}</td>
-                <td><a href="{% url 'menu_items-detail' item.pk %}">Details</a></td>
+                <td>{{item.time}}</td>
+                <td>{{item.menu_item}}</td>
+                <td>{{item.menu_item.price}}</td>
             </tr>
             {% empty %}
             <tr>
@@ -29,6 +29,9 @@
             {% endfor %}
         </tbody>
     </table>
+    <h4>Total Revenue</h4>
+    <p>{{total_revenue}}</p>
+    
     
 </div>
 {% endblock %}
