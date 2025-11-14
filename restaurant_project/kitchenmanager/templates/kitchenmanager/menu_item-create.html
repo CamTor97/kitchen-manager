@@ -1,3 +1,21 @@
 {% extends "../base.html" %}
 {% block title %}KitchenManager - Menu Item Creation{% endblock %}
 
+{% block content %}
+    <h1>Menu Item Creation</h1>
+    <form method="post", action="">
+        {% csrf_token %}
+        <h2>Item Details</h2>
+        {{form.as_p}}
+        <hr>
+        <h2>Required Ingredients</h2>
+        {{formset.management_form}}
+        {% for req_form in formset %}
+            <div class="ingredient-row mb-3 p-3 border rounded">
+                {{req_form.as_p}}
+                {%for hidden in req_form.hidden_fields %}{{hidden}}{% endfor %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+{% endblock %}

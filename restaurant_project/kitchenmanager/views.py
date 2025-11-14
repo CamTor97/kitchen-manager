@@ -1,8 +1,10 @@
-from django.shortcuts import render
-from django.views.generic import (ListView, DeleteView, DetailView, CreateView, UpdateView, TemplateView)
+from django.shortcuts import render, redirect
+from django.db import transaction
+from django.views.generic import (ListView, DeleteView, DetailView, CreateView, UpdateView, TemplateView, View)
 from django.urls import reverse_lazy
 from .models import Ingredient, MenuItem, RecipeRequirement, Purchase
 from .mixins import CalculatedVariablesMixin
+from .forms import IngredientCreationForm, MenuItemCreationForm, RecipeRequirementFormSet, PurchaseCreationForm
 # Create your views here.
 # Dashboard view
 class DashboardView(CalculatedVariablesMixin, TemplateView):
@@ -17,8 +19,8 @@ class IngredientListView(ListView):
 
 class IngredientCreationView(CreateView):
     model = Ingredient
-    fields = ["name", "in_stock", "unit_type", "unit_price"]
-    template_name = ""
+    form_class = IngredientCreationForm
+    template_name = "kitchenmanager/ingredient-create.html"
     success_url= reverse_lazy("ingredients")
 
 class IngredientUpdateView(UpdateView):
@@ -38,11 +40,33 @@ class MenuItemListView(ListView):
     template_name = "kitchenmanager/menu.html"
     context_object_name = "menu_item"
 
-class MenuItemCreationView(CreateView):
-    model = MenuItem
-    fields = ["name", "price", "description"]
-    template_name = ""
+class MenuItemCreationView(View):
+    template_name = "kitchenmanager/menu_item-create.html"
     success_url = reverse_lazy("menu_items")
+    
+    def get(self, request):
+        context = {
+            "form": MenuItemCreationForm(),
+            "formset": RecipeRequirementFormSet(queryset=RecipeRequirement.objects.none())
+        }
+        return render(request, self.template_name, context)
+    
+    def post(self, request):
+        menuitem_form = MenuItemCreationForm(request.POST)
+        formset = RecipeRequirementFormSet(request.POST)
+        if menuitem_form.is_valid() and formset.is_valid():
+            with transaction.atomic():
+                menuitem_instance = menuitem_form.save()
+                instances = formset.save(commit=False)
+                for instance in instances:
+                    instance.recipe = menuitem_instance
+                    instance.save()
+            return redirect(self.success_url)
+        
+        context = {"form": menuitem_form, "formset": formset}
+        return render(request, self.template_name, context)
+
+    
 
 class MenuItemUpdateView(UpdateView):
     model = MenuItem
@@ -97,8 +121,8 @@ class PurchaseListView(CalculatedVariablesMixin, ListView):
 
 class PurchaseCreationView(CreateView):
     model = Purchase
-    fields = ["menu_item"]
-    template_name = ""
+    form_class = PurchaseCreationForm
+    template_name = "kitchenmanager/purchase-create.html"
     success_url = reverse_lazy("purchases")
 
 class PurchaseUpdateView(UpdateView):

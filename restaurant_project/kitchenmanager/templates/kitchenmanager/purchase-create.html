@@ -1,0 +1,11 @@
+{% extends "../base.html" %}
+{% block title %}KitchenManager - Purchase Creation{% endblock %}
+
+{% block content %}
+<h1>Purchase</h1>
+<form method="POST" action="">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+{% endblock %}
