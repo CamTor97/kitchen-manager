@@ -6,7 +6,6 @@ class Ingredient(models.Model):
     in_stock = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="in stock")
     unit_type = models.CharField(max_length=100, verbose_name="unit type")
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="unit price")
-
     def __str__(self):
         return self.name
 
@@ -19,7 +18,7 @@ class MenuItem(models.Model):
         return self.name
 
 class RecipeRequirement(models.Model):
-    recipe = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(MenuItem, on_delete=models.CASCADE, related_name="requirements")
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     quantity_needed = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
@@ -28,4 +27,4 @@ class RecipeRequirement(models.Model):
 
 class Purchase(models.Model):
     time = models.DateTimeField(auto_now_add=True)
-    menu_item = models.ForeignKey(MenuItem, on_delete=models.SET_NULL, null=True)
+    menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE, null=True)

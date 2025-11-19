@@ -10,8 +10,8 @@ class CalculatedVariablesMixin:
         # Calculating Total Costs
         total_cost = Purchase.objects.aggregate(
             total=Sum(
-                F("menu_item__reciperequirement__quantity_needed") *
-                F("menu_item__reciperequirement__ingredient__unit_price")
+                F("menu_item__requirements__quantity_needed") *
+                F("menu_item__requirements__ingredient__unit_price")
             )
         )["total"] or 0
         # Calculating Total Profit

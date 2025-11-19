@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from django.views.generic import (ListView, DeleteView, DetailView, CreateView, UpdateView, TemplateView, View)
 from django.urls import reverse_lazy
@@ -25,13 +25,13 @@ class IngredientCreationView(CreateView):
 
 class IngredientUpdateView(UpdateView):
     model = Ingredient
-    fields = ["name", "in_stock", "unit_type", "unit_price"]
-    template_name = ""
+    form_class = IngredientCreationForm
+    template_name = "kitchenmanager/ingredient-create.html"
     success_url= reverse_lazy("ingredients")
 
 class IngredientDeleteView(DeleteView):
     model = Ingredient
-    template_name = ""
+    template_name = "kitchenmanager/ingredient_confirm_delete.html"
     success_url = reverse_lazy("ingredients")
 
 #MenuItem model views
@@ -68,15 +68,37 @@ class MenuItemCreationView(View):
 
     
 
-class MenuItemUpdateView(UpdateView):
-    model = MenuItem
-    fields = ["name", "price", "description"]
-    template_name = ""
+class MenuItemUpdateView(View):
+    template_name = "kitchenmanager/menu_item-create.html"
     success_url = reverse_lazy("menu_items")
+    
+    def get(self, request, pk):
+        menu_item_instance = get_object_or_404(MenuItem, pk=pk)
+        context = {
+            "form": MenuItemCreationForm(instance=menu_item_instance),
+            "formset": RecipeRequirementFormSet(instance=menu_item_instance) 
+        }
+        return render(request, self.template_name, context)
+    
+    def post(self, request, pk):
+        recipe_instance = get_object_or_404(MenuItem, pk=pk)
+        menuitem_form = MenuItemCreationForm(request.POST, instance=recipe_instance)
+        formset = RecipeRequirementFormSet(request.POST, instance=recipe_instance)
+        if menuitem_form.is_valid() and formset.is_valid():
+            with transaction.atomic():
+                menuitem_instance = menuitem_form.save()
+                instances = formset.save(commit=False)
+                for instance in instances:
+                    instance.recipe = menuitem_instance
+                    instance.save()
+            return redirect(self.success_url)
+        
+        context = {"form": menuitem_form, "formset": formset}
+        return render(request, self.template_name, context)
 
 class MenuItemDeleteView(DeleteView):
     model = MenuItem
-    template_name = ""
+    template_name = "kitchenmanager/menu_item_confirm_delete.html"
     success_url = reverse_lazy("menu_items")
 
 class MenuItemDetailView(DetailView):
@@ -133,7 +155,7 @@ class PurchaseUpdateView(UpdateView):
 
 class PurchaseDeleteView(DeleteView):
     model = Purchase
-    template_name = ""
+    template_name = "kitchenmanager/purchase_confirm_delete.html"
     success_url = reverse_lazy("purchases")
     
 

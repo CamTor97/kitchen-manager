@@ -13,6 +13,7 @@
                 <th>Time</th>
                 <th>Menu Item</th>
                 <th>Price</th>
+                <th>Manage</th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +22,9 @@
                 <td>{{item.time}}</td>
                 <td>{{item.menu_item}}</td>
                 <td>{{item.menu_item.price}}</td>
+                <td>
+                    <a href="{% url 'purchases-delete' item.pk %}">Delete</a>
+                </td>
             </tr>
             {% empty %}
             <tr>

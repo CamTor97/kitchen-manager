@@ -1,6 +1,8 @@
 from django import forms
 from . import models
 from django.forms.models import inlineformset_factory
+from django.db.models import F
+from django.db import transaction
 
 # Ingredient model Forms
 class IngredientCreationForm(forms.ModelForm):
@@ -55,4 +57,22 @@ class PurchaseCreationForm(forms.ModelForm):
         widgets = {
             "menu_item": forms.Select(attrs={"class": "form-select"}),
         }
+
+    def clean_menu_item(self):
+        menu_item = self.cleaned_data["menu_item"]
+
+        requirements = menu_item.requirements.all()
+        stock_errors = []
+
+        for req in requirements:
+            if req.ingredient.in_stock < req.quantity_needed:
+                stock_errors.append(f"Insufficient stock for '{req.ingredient.name}'. Need {req.quantity_needed} {req.ingredient.unit_type}, but only have {req.ingredient.in_stock} {req.ingredient.unit_type}.")
+            
+        if stock_errors:
+            raise forms.ValidationError(stock_errors)
+        
+        return menu_item
+            
+            
+
 
