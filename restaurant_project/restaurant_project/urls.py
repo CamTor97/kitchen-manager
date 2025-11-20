@@ -17,10 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from kitchenmanager import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('dashboard/', views.DashboardView.as_view(), name="dashboard"),
+    path("", auth_views.LoginView.as_view(template_name="kitchenmanager/login.html"), name="login"),
+    path("logout/", views.logout_view, name="logout"),
+    path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
     # Ingredient model Urls
     path("ingredients/", views.IngredientListView.as_view(), name="ingredients"),
     path("ingredients/create/", views.IngredientCreationView.as_view(), name="ingredient-create"),

@@ -1,3 +1,5 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from django.views.generic import (ListView, DeleteView, DetailView, CreateView, UpdateView, TemplateView, View)
@@ -6,41 +8,45 @@ from .models import Ingredient, MenuItem, RecipeRequirement, Purchase
 from .mixins import CalculatedVariablesMixin
 from .forms import IngredientCreationForm, MenuItemCreationForm, RecipeRequirementFormSet, PurchaseCreationForm
 # Create your views here.
+def logout_view(request):
+    logout(request)
+    return redirect("login")
+
 # Dashboard view
 class DashboardView(CalculatedVariablesMixin, TemplateView):
     template_name = "kitchenmanager/dashboard.html"
 
     
 # Ingredient model views
-class IngredientListView(ListView):
+class IngredientListView(LoginRequiredMixin, ListView):
     model = Ingredient
     template_name = "kitchenmanager/ingredients.html"
     context_object_name = "ingredient" 
 
-class IngredientCreationView(CreateView):
+class IngredientCreationView(LoginRequiredMixin, CreateView):
     model = Ingredient
     form_class = IngredientCreationForm
     template_name = "kitchenmanager/ingredient-create.html"
     success_url= reverse_lazy("ingredients")
 
-class IngredientUpdateView(UpdateView):
+class IngredientUpdateView(LoginRequiredMixin, UpdateView):
     model = Ingredient
     form_class = IngredientCreationForm
     template_name = "kitchenmanager/ingredient-create.html"
     success_url= reverse_lazy("ingredients")
 
-class IngredientDeleteView(DeleteView):
+class IngredientDeleteView(LoginRequiredMixin, DeleteView):
     model = Ingredient
     template_name = "kitchenmanager/ingredient_confirm_delete.html"
     success_url = reverse_lazy("ingredients")
 
 #MenuItem model views
-class MenuItemListView(ListView):
+class MenuItemListView(LoginRequiredMixin, ListView):
     model = MenuItem
     template_name = "kitchenmanager/menu.html"
     context_object_name = "menu_item"
 
-class MenuItemCreationView(View):
+class MenuItemCreationView(LoginRequiredMixin, View):
     template_name = "kitchenmanager/menu_item-create.html"
     success_url = reverse_lazy("menu_items")
     
@@ -68,7 +74,7 @@ class MenuItemCreationView(View):
 
     
 
-class MenuItemUpdateView(View):
+class MenuItemUpdateView(LoginRequiredMixin, View):
     template_name = "kitchenmanager/menu_item-create.html"
     success_url = reverse_lazy("menu_items")
     
@@ -96,12 +102,12 @@ class MenuItemUpdateView(View):
         context = {"form": menuitem_form, "formset": formset}
         return render(request, self.template_name, context)
 
-class MenuItemDeleteView(DeleteView):
+class MenuItemDeleteView(LoginRequiredMixin, DeleteView):
     model = MenuItem
     template_name = "kitchenmanager/menu_item_confirm_delete.html"
     success_url = reverse_lazy("menu_items")
 
-class MenuItemDetailView(DetailView):
+class MenuItemDetailView(LoginRequiredMixin, DetailView):
     model = MenuItem
     template_name = "kitchenmanager/menu-details.html"
     context_object_name = "menu_item"
@@ -113,47 +119,47 @@ class MenuItemDetailView(DetailView):
         return context 
 
 # RecipeRequirement model views
-class RecipeRequirementListView(ListView):
+class RecipeRequirementListView(LoginRequiredMixin, ListView):
     model = RecipeRequirement
     template_name = ""
     context_object_name = "recipe_requirement"
 
-class RecipeRequirementCreationView(CreateView):
+class RecipeRequirementCreationView(LoginRequiredMixin, CreateView):
     model = RecipeRequirement
     fields = ["recipe", "ingredient", "quantity_need"]
     template_name = ""
     success_url = reverse_lazy("recipe_requirements")
 
-class RecipeRequirementUpdateView(UpdateView):
+class RecipeRequirementUpdateView(LoginRequiredMixin, UpdateView):
     model = RecipeRequirement
     fields = ["recipe", "ingredient", "quantity_need"]
     template_name = ""
     success_url = reverse_lazy("recipe_requirements")
 
-class RecipeRequirementDeleteView(DeleteView):
+class RecipeRequirementDeleteView(LoginRequiredMixin, DeleteView):
     model = RecipeRequirement
     template_name = ""
     success_url = reverse_lazy("recipe_requirements")
 
 # Purchase model views
-class PurchaseListView(CalculatedVariablesMixin, ListView):
+class PurchaseListView(LoginRequiredMixin, CalculatedVariablesMixin, ListView):
     model = Purchase
     template_name = "kitchenmanager/purchases.html"
     context_object_name = "purchase"
 
-class PurchaseCreationView(CreateView):
+class PurchaseCreationView(LoginRequiredMixin, CreateView):
     model = Purchase
     form_class = PurchaseCreationForm
     template_name = "kitchenmanager/purchase-create.html"
     success_url = reverse_lazy("purchases")
 
-class PurchaseUpdateView(UpdateView):
+class PurchaseUpdateView(LoginRequiredMixin, UpdateView):
     model = Purchase
     fields = ["menu_item"]
     template_name = ""
     success_url = reverse_lazy("purchases")
 
-class PurchaseDeleteView(DeleteView):
+class PurchaseDeleteView(LoginRequiredMixin, DeleteView):
     model = Purchase
     template_name = "kitchenmanager/purchase_confirm_delete.html"
     success_url = reverse_lazy("purchases")
